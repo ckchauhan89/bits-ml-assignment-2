@@ -68,6 +68,11 @@ upload = st.file_uploader(
 )
 
 if upload is None:
+    st.info("Upload your test CSV file to view model performance.")
+
+    st.divider()
+    st.caption("Breast Cancer Classification")
+
     st.stop()
 
 # Validate the uploaded test data.
@@ -171,3 +176,6 @@ st.dataframe(
     results.style.format("{:.4f}", na_rep="N/A"),
     width="stretch",
 )
+
+st.divider()
+st.caption("Breast Cancer Classification")
