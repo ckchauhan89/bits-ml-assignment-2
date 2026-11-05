@@ -1,38 +1,94 @@
-# Machine Learning Assignment 2: UCI Classification Explorer
-
-> Learning/reference implementation generated with AI assistance. The assignment permits AI for learning support, not direct copy-paste submissions. Understand, adapt and explain the implementation, run it on BITS Virtual Lab, maintain genuine commits, and replace the placeholders below before submitting. Bundled model results were generated in a reference environment, not BITS Virtual Lab. No execution screenshot or deployment is claimed.
+# Machine Learning Assignment 2: Breast Cancer Classification
 
 ## a. Problem statement
-Compare Logistic Regression, Decision Tree, KNN, Gaussian Naive Bayes and Support Vector Machine for binary classification of breast tumor measurements as benign or malignant. Evaluate held-out data using Accuracy, ROC-AUC, Precision, Recall, F1 and Matthews Correlation Coefficient, and demonstrate inference using Streamlit. This is an educational classification experiment, not a clinical tool.
+
+Implement and compare five machine learning classification models to classify breast tumor measurements as benign or malignant using the UCI Breast Cancer Wisconsin (Diagnostic) dataset.
+
+Evaluate all five models on the same held-out test dataset using Accuracy, AUC, Precision, Recall, F1 Score and Matthews Correlation Coefficient (MCC). Provide an interactive Streamlit application that loads saved models and evaluates uploaded test data without retraining.
 
 ## b. Dataset description
-- **Dataset:** Breast Cancer Wisconsin (Diagnostic), UCI dataset 17.
-- **Source:** https://archive.ics.uci.edu/dataset/17/breast-cancer-wisconsin-diagnostic
-- **DOI:** https://doi.org/10.24432/C5DW2B
-- **Distribution used:** scikit-learn's bundled `load_breast_cancer(as_frame=True)` copy, exported by `prepare_data.py`. No runtime download is needed. This is a real UCI dataset, not synthetic data. See `data/SOURCE.md`.
-- **Dimensions:** 569 records and 30 numerical predictors, meeting the minimum 500 records/12 input features.
-- **Features:** mean, standard error and worst values of radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry and fractal dimension.
-- **Target:** `target`, explicitly remapped to **0=benign, 1=malignant**. scikit-learn's original target encoding is reversed by `prepare_data.py`.
-- **Class counts:** 357 benign, 212 malignant. No identifier is used as a predictor. The dataset has no missing predictor values.
-- **Split:** stratified 80:20 train/test split, random seed 42; 455 training and 114 held-out test rows. All five models use exactly the same split.
-- **Preprocessing:** fit StandardScaler on training rows only for Logistic Regression, KNN and SVM. The fitted scaler and classifier are saved together as a pipeline. Decision Tree and GaussianNB use unscaled inputs.
-- The split, seed and hyperparameters are implementation choices, not prescribed assignment settings. No hyperparameter search was performed. Do not tune repeatedly against the held-out test set.
+
+| Attribute | Description |
+| --- | --- |
+| Dataset | Breast Cancer Wisconsin (Diagnostic) |
+| Repository | UCI Machine Learning Repository, dataset 17 |
+| Source | https://archive.ics.uci.edu/dataset/17/breast-cancer-wisconsin-diagnostic |
+| DOI | https://doi.org/10.24432/C5DW2B |
+| Classification task | Binary classification |
+| Number of instances | 569 |
+| Number of input features | 30 numerical features |
+| Target column | `target` |
+| Target encoding | 0 = Benign; 1 = Malignant |
+| Class distribution | 357 benign and 212 malignant |
+| Missing predictor values | None |
+| Training samples | 455 |
+| Test samples | 114 |
+
+The dataset satisfies the assignment requirements of at least 500 instances and 12 input features.
+
+### Features
+
+The predictors represent the mean, standard error and worst values of ten characteristics of cell nuclei:
+
+- Radius
+- Texture
+- Perimeter
+- Area
+- Smoothness
+- Compactness
+- Concavity
+- Concave points
+- Symmetry
+- Fractal dimension
+
+### Dataset preparation
+
+The dataset is loaded using scikit-learn's bundled UCI dataset:
+
+```python
+load_breast_cancer(as_frame=True)
+```
+
+The original scikit-learn labels are remapped so that malignant is the positive class:
+
+- `0`: Benign
+- `1`: Malignant
+
+No identifier column is used as an input feature.
+
+### Training and test split
+
+A stratified 80:20 split is performed using `random_state=42`. All five classifiers use the same 455 training samples and 114 test samples.
+
+The test samples, including their target labels, are exported to `test_data.csv`.
+
+### Preprocessing
+
+`StandardScaler` is fitted on training data only for Logistic Regression, KNN and SVM. Each fitted scaler is saved together with its classifier in a pipeline.
+
+Decision Tree and Gaussian Naive Bayes use unscaled features.
+
+Test data is transformed using the fitted preprocessing. No preprocessing or classifier is fitted on uploaded test data.
 
 ## c. GitHub Repository Link
-**TODO:** Create your dedicated repository and replace this line with its real URL.
-Suggested URL only (not verified or created): https://github.com/ckchauhan89/bits-ml-assignment-2
+
+https://github.com/ckchauhan89/bits-ml-assignment-2
 
 ## d. Models used
-| Model | Reference configuration |
+
+All five classifiers are trained on the same dataset and evaluated on the same held-out test samples.
+
+| ML Model Name | Configuration |
 | --- | --- |
-| Logistic Regression | StandardScaler; max_iter=2000; random_state=42 |
-| Decision Tree | Default tree parameters; random_state=42 |
-| KNN | StandardScaler; 5 neighbors |
-| Naive Bayes | GaussianNB defaults |
-| Support Vector Machine | StandardScaler; RBF kernel; probability=True; random_state=42 |
+| Logistic Regression | StandardScaler followed by LogisticRegression with `max_iter=2000` and `random_state=42` |
+| Decision Tree | DecisionTreeClassifier with default tree parameters and `random_state=42` |
+| KNN | StandardScaler followed by KNeighborsClassifier with `n_neighbors=5` |
+| Naive Bayes | GaussianNB with default parameters |
+| Support Vector Machine | StandardScaler followed by SVC with RBF kernel, `probability=True` and `random_state=42` |
 
 ### Evaluation metrics comparison
-**Reference run only.** Rerun `python train_models.py` on BITS Virtual Lab and replace this table with your verified results from `results/metrics.csv`.
+
+The following results were obtained on the 114 held-out test samples.
 
 | ML Model Name | Accuracy | AUC | Precision | Recall | F1 | MCC |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -42,77 +98,115 @@ Suggested URL only (not verified or created): https://github.com/ckchauhan89/bit
 | Naive Bayes | 0.938596 | 0.993386 | 1.000000 | 0.833333 | 0.909091 | 0.871489 |
 | Support Vector Machine | 0.973684 | 0.994709 | 1.000000 | 0.928571 | 0.962963 | 0.944155 |
 
-Precision, Recall and F1 use malignant=1, with zero_division=0. AUC uses the probability column corresponding to class 1. MCC is calculated from hard predictions. Undefined AUC on a one-class upload is displayed as N/A. These are binary metrics, not macro/weighted multiclass averages.
+### Metric calculation
+
+- **Accuracy:** Proportion of correctly classified samples.
+- **AUC:** ROC-AUC calculated using predicted probabilities for malignant class `1`.
+- **Precision:** Proportion of predicted malignant samples that are actually malignant.
+- **Recall:** Proportion of actual malignant samples correctly identified.
+- **F1:** Harmonic mean of precision and recall.
+- **MCC:** Matthews Correlation Coefficient calculated from predicted and actual classes.
+
+Precision, Recall and F1 use malignant (`1`) as the positive class, with `zero_division=0`.
+
+When an uploaded test file contains only one target class, AUC is undefined and displayed as `N/A`.
 
 ### Observations about model performance
-Write your own explanation after running and inspecting the models. The questions below are guidance, not completed observations.
 
 | ML Model Name | Observation about model performance |
 | --- | --- |
-| Logistic Regression | TODO: interpret its recall and AUC; inspect false negatives and explain the linear baseline. |
-| Decision Tree | TODO: inspect errors and discuss the unpruned tree's limitations on this holdout. |
-| KNN | TODO: discuss distance-based predictions and the effect of scaling; compare recall. |
-| Naive Bayes | TODO: compare precision with recall and discuss its conditional independence assumption. |
-| Support Vector Machine | TODO: compare F1, MCC and AUC with other models and inspect the confusion matrix. |
-| Overall, Winner for your dataset? | TODO: state a criterion, justify it using actual values and acknowledge conflicting metrics. A single holdout does not prove general superiority. |
+| Logistic Regression | Achieved 96.49% accuracy, an F1 score of 0.951220 and MCC of 0.924518. It produced the highest AUC, 0.996032, indicating the strongest ranking performance across thresholds in this experiment. Recall of 0.928571 shows that some malignant samples were missed at the model's classification threshold. |
+| Decision Tree | Achieved 92.98% accuracy, the lowest among the five classifiers. Precision and recall were both 0.904762. Its AUC of 0.924603 and MCC of 0.849206 were also the lowest. This configuration performed less effectively than the other models on the held-out test set; these results alone do not establish whether overfitting caused the difference. |
+| KNN | Achieved 95.61% accuracy, precision of 0.974359 and F1 of 0.938272. Its high precision indicates relatively few false-positive malignant predictions, while recall of 0.904762 indicates missed malignant samples. It performed below Logistic Regression and SVM on accuracy, F1 and MCC. |
+| Naive Bayes | Achieved 93.86% accuracy and precision of 1.000000, indicating no false-positive malignant predictions on this test set. However, its recall of 0.833333 was the lowest, indicating the largest proportion of missed malignant samples. Its high AUC of 0.993386 shows that strong ranking performance did not translate into equally strong recall at the classification threshold. |
+| Support Vector Machine | Achieved the highest accuracy, 97.37%, highest F1 score, 0.962963, and highest MCC, 0.944155. Precision was 1.000000 and recall was 0.928571. It made no false-positive malignant predictions but still missed some malignant samples. Its AUC of 0.994709 was slightly below Logistic Regression. |
+| Overall, Winner for your dataset? | Support Vector Machine is the overall winner for this held-out evaluation when accuracy, F1 and MCC are used as the selection criteria. Logistic Regression achieved the highest AUC and matched SVM's recall. The conclusion applies to this dataset split and these model configurations; a single holdout does not demonstrate universal superiority. |
 
-## Run on BITS Virtual Lab
-Use Python **3.12** for the tested setup. Use VS Code or JupyterLab if available inside the lab; no particular IDE is required by the assignment.
+## Run the project
 
-```bash
-python -m venv .venv
-```
-Activate on Linux/macOS: `source .venv/bin/activate`; Windows PowerShell: `.venv\Scripts\Activate.ps1`.
-If the lab's managed environment does not permit virtual environments, use its provided interpreter and package installation mechanism.
+Use a compatible Python environment. Local testing was completed using Python 3.13.
+
+Install dependencies:
 
 ```bash
-python -m pip install -r requirements.txt
-python train_models.py
-python verify_project.py
-python -m streamlit run app.py
+python3 -m pip install -r requirements.txt
 ```
-The training command exports the dataset and overwrites the saved models, manifest, test CSV and metrics. Use the lab's preview/forwarded-port mechanism if needed. Capture **one genuine screenshot** showing BITS Virtual Lab and successful execution. This project does not supply fabricated lab evidence.
+
+Prepare the dataset, train all five models and generate evaluation results:
+
+```bash
+python3 train_models.py
+```
+
+Verify the saved models and recorded results:
+
+```bash
+python3 verify_project.py
+```
+
+Start the Streamlit application:
+
+```bash
+python3 -m streamlit run app.py
+```
+
+The training script generates the saved model artifacts, manifest, test CSV and metrics file.
 
 ## Application usage
-1. Start the app and download `test_data.csv`, or use the copy in the repository.
-2. Upload only held-out test data. CSV must contain the 30 exact feature names and `target`, encoded as 0/1.
-3. Select any of the five models. Inspect all six metrics, confusion matrix, classification report and the all-model comparison.
-4. The app loads fitted artifacts only. It never calls fit on uploaded data and never refits preprocessing.
-5. Missing/extra/duplicate columns, nonnumeric values, NaN/infinity and invalid labels are rejected. A single-class upload has undefined AUC.
 
-## Deploy on Streamlit Community Cloud
-1. Create a dedicated GitHub repository under your existing account; a new account is unnecessary.
-2. Commit your adapted source, requirements, README, data provenance, test CSV and all five model artifacts/manifest. Do not commit `.venv`, credentials or caches.
-3. Open https://streamlit.io/cloud and sign in with GitHub.
-4. Create an app, choose your repository and branch (typically `main`) and set the entry point to `app.py`.
-5. In advanced settings choose Python 3.12, matching this tested environment. Deploy and inspect build logs.
-6. Open the app in a private browser window, upload `test_data.csv`, and verify all five classifiers against your recorded metrics.
-7. Add the actual live URL below. Resolve repository/app permissions so evaluators can open both links.
+1. Open the Streamlit application.
+2. Select a classification model.
+3. Upload `test_data.csv` from this repository.
+4. View the six evaluation metrics for the selected model.
+5. Inspect its confusion matrix.
+6. Compare all five classifiers in the model performance comparison table.
 
-**Live app URL:** TODO after deployment.
+The uploaded CSV must contain all 30 input features and the `target` column, using `0` for benign and `1` for malignant.
 
-All direct dependencies are pinned to the versions used for reference verification. `requirements-tested.txt` records the exact direct versions from this reference check. Retrain if changing scikit-learn versions; never load untrusted joblib/pickle files.
+The application loads previously trained models. It does not retrain classifiers or refit preprocessing on uploaded test data.
 
-## Files
-- `prepare_data.py`: export UCI dataset from scikit-learn; remap labels.
-- `train_models.py`: shared split, training, evaluation and artifact generation.
-- `evaluation.py`: common CSV validation and six metrics.
-- `app.py`: inference-only Streamlit frontend.
-- `verify_project.py`: saved-model/metric consistency and upload-validation checks.
-- `requirements.txt`: deployment dependencies.
-- `requirements-tested.txt`: direct package versions recorded during reference verification.
-- `data/breast_cancer.csv`: full exported dataset for training.
-- `data/SOURCE.md`: provenance and column/label details.
-- `test_data.csv`: 114 labeled held-out rows; 30 features plus target.
-- `model/*.joblib`: five fitted classifiers/pipelines.
-- `model/manifest.json`: feature order, classes, filenames and training settings.
-- `results/metrics.csv`: unrounded reference metrics, regenerated by training.
-- `START_HERE.md`: ordered execution and submission checklist.
+## Streamlit Community Cloud deployment
 
-## Final submission PDF (required order)
+1. Push the source code, dependencies, test data and saved model artifacts to GitHub.
+2. Sign in to Streamlit Community Cloud using GitHub.
+3. Select repository `ckchauhan89/bits-ml-assignment-2`.
+4. Select branch `main` and entry-point file `app.py`.
+5. Choose Python 3.13 in Advanced settings.
+6. Deploy and check the installation logs.
+7. Upload `test_data.csv` and verify all five models.
+
+Use compatible dependency versions when loading saved models. If the scikit-learn version changes, retrain and verify the models before deployment.
+
+## Project files
+
+| File or folder | Purpose |
+| --- | --- |
+| `app.py` | Streamlit application for evaluating saved models |
+| `prepare_data.py` | Load and export the UCI dataset and remap target labels |
+| `train_models.py` | Split data, train classifiers, calculate metrics and save artifacts |
+| `evaluation.py` | Validate uploaded data and calculate evaluation metrics |
+| `verify_project.py` | Check model-result consistency and input validation |
+| `requirements.txt` | Deployment dependencies |
+| `requirements-tested.txt` | Dependency versions recorded during reference verification |
+| `data/breast_cancer.csv` | Full exported dataset |
+| `data/SOURCE.md` | Dataset provenance |
+| `test_data.csv` | Labeled held-out test samples |
+| `model/` | Five fitted classifiers or pipelines and `manifest.json` |
+| `results/metrics.csv` | Evaluation results generated by the training script |
+| `README.md` | Problem statement, dataset description, models, results and observations |
+| `START_HERE.md` | Initial setup and submission guidance |
+
+## BITS Virtual Lab execution and submission
+
+The assignment requires execution on BITS Virtual Lab and one genuine screenshot as evidence. Local testing and cloud deployment do not replace this requirement.
+
+Submit one PDF containing the following in order:
+
 1. Clickable GitHub repository link.
-2. Clickable deployed Streamlit app link.
-3. One genuine screenshot of assignment execution on BITS Virtual Lab.
-4. The required README content, including both filled tables and your observations.
+2. Clickable live Streamlit application link.
+3. Screenshot showing assignment execution on BITS Virtual Lab.
+4. Required README content, including the metric comparison and model observations tables.
 
-Replace all TODOs, confirm actual lab results, customize the interface, verify links and complete the portal's **Submit** action. Deadline in assignment: **8 November 2026, 23:59**; confirm portal timezone. No draft submissions or deadline extensions are accepted.
+## Acknowledgment
+
+AI assistance was used in preparing the reference implementation and documentation. The author must review and understand the implementation, verify the reported results and follow the assignment's academic integrity requirements.
