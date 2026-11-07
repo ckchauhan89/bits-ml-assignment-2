@@ -19,8 +19,10 @@ ROOT = Path(__file__).resolve().parent
 
 def main():
     frame = pd.read_csv(prepare())
+    # Exclude the target column from the input features.
     features = list(frame.columns.drop('target'))
     X, y = validate(frame, features)
+    # Use the same stratified holdout split for all five classifiers.
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, stratify=y, random_state=42)
     models = {
@@ -40,7 +42,9 @@ def main():
     rows = []
     files = {}
     for name, (filename, model) in models.items():
+        # Fit preprocessing and classifier using training samples only.
         model.fit(X_train, y_train)
+        # Evaluate on held-out samples without refitting.
         metrics, _ = evaluate(model, X_test, y_test)
         rows.append({'ML Model Name': name, **metrics})
         joblib.dump(model, ROOT / 'model' / filename)

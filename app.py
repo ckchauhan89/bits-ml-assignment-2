@@ -22,6 +22,7 @@ st.set_page_config(
 )
 
 st.title("Breast Cancer Classification")
+
 st.write(
     "Compare five machine learning classifiers using the "
     "UCI Breast Cancer Wisconsin (Diagnostic) dataset."
@@ -50,7 +51,16 @@ def load_models(signature):
     }
 
 
-# Required: model selection.
+# Common training information, visible before and after upload.
+st.info(
+    f"Dataset samples: "
+    f"{manifest['train_rows'] + manifest['test_rows']} | "
+    f"Training samples: {manifest['train_rows']} | "
+    f"Held-out test samples: {manifest['test_rows']} | "
+    f"Input features: {len(manifest['features'])}"
+)
+
+# Model selection.
 st.header("Model Selection")
 
 selected = st.selectbox(
@@ -58,7 +68,7 @@ selected = st.selectbox(
     options=list(manifest["models"]),
 )
 
-# Required: test CSV upload.
+# Test CSV upload.
 st.header("Test Dataset")
 
 upload = st.file_uploader(
@@ -95,7 +105,7 @@ except (
     st.error(f"Invalid test CSV: {error}")
     st.stop()
 
-# Evaluate all five saved models on the same uploaded data.
+# Evaluate all five saved models on the same uploaded test data.
 try:
     signature = tuple(
         (
@@ -126,9 +136,11 @@ except Exception as error:
     st.error(f"Unable to evaluate saved models: {error}")
     st.stop()
 
-# Required: six evaluation metrics.
+# Six evaluation metrics for the selected model.
 st.header("Evaluation Metrics")
 st.subheader(selected)
+
+st.caption(f"Evaluated on {len(X)} uploaded test samples.")
 
 columns = st.columns(6)
 
@@ -147,8 +159,7 @@ if y.nunique() < 2:
         "contains only one target class."
     )
 
-# Required: confusion matrix or classification report.
-# This application uses a confusion matrix.
+# Confusion matrix for the selected model.
 st.header("Confusion Matrix")
 
 fig, ax = plt.subplots(figsize=(6, 4))
@@ -169,7 +180,7 @@ fig.tight_layout()
 st.pyplot(fig)
 plt.close(fig)
 
-# Required: visible results for all five models.
+# Comparison of all five models.
 st.header("Model Performance Comparison")
 
 st.dataframe(
@@ -177,5 +188,17 @@ st.dataframe(
     width="stretch",
 )
 
+# Download metrics calculated from the uploaded test data.
+st.download_button(
+    label="Download Evaluation Results (CSV)",
+    data=results.to_csv(
+        index=True,
+        index_label="ML Model Name",
+    ).encode("utf-8"),
+    file_name="model_evaluation_results.csv",
+    mime="text/csv",
+)
+
+# Footer.
 st.divider()
 st.caption("Breast Cancer Classification")
